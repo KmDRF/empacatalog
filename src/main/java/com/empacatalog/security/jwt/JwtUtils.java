@@ -1,4 +1,4 @@
-package com.empacatalog.security; // Paquete corregido
+package com.empacatalog.security.jwt; // Paquete corregido
 
 import com.empacatalog.domain.model.User; // Importa la entidad User
 import io.jsonwebtoken.*;
