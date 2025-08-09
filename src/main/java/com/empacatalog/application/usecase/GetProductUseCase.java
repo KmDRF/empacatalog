@@ -2,7 +2,7 @@ package com.empacatalog.application.usecase;
 
 import com.empacatalog.domain.model.Product;
 import com.empacatalog.domain.model.ProductNotFoundException;
-import com.empacatalog.repository.ProductRepository;
+import com.empacatalog.domain.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

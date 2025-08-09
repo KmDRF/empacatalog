@@ -1,44 +1,50 @@
 package com.empacatalog.application.usecase;
 
-import com.empacatalog.application.dto.ProductDTO;
+import com.empacatalog.application.dto.product.ProductCreationRequest;
 import com.empacatalog.domain.model.Product;
-import com.empacatalog.domain.model.ProductAlreadyExistsException; // Importa la excepción personalizada
-import com.empacatalog.domain.service.ProductService;
+import com.empacatalog.domain.model.ProductAlreadyExistsException;
+import com.empacatalog.domain.repository.ProductRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
+/**
+ * Caso de uso para crear un nuevo producto.
+ * Implementa la lógica de negocio para validar la existencia del producto
+ * y guardarlo en la base de datos.
+ */
 @Component
 public class CreateProductUseCase {
 
-    private final ProductService productService;
+    private final ProductRepository productRepository;
 
-    public CreateProductUseCase(ProductService productService) {
-        this.productService = productService;
+    public CreateProductUseCase(ProductRepository productRepository) {
+        this.productRepository = productRepository;
     }
 
     /**
-     * Lógica de negocio para crear un nuevo producto.
-     * Este método encapsula la validación y la persistencia.
-     * @param productDTO El DTO con los datos del nuevo producto.
-     * @return El DTO del producto creado.
+     * Crea y guarda un nuevo producto.
+     *
+     * @param request DTO con los datos del nuevo producto.
+     * @return La entidad Product creada.
+     * @throws ProductAlreadyExistsException si un producto con el mismo número de parte ya existe.
      */
     @Transactional
-    public ProductDTO execute(ProductDTO productDTO) {
-        // 1. Validar si ya existe un producto con el mismo partNumber.
-        Optional<Product> existingProduct = productService.findProductByPartNumber(productDTO.getPartNumber());
-        if (existingProduct.isPresent()) {
-            throw new ProductAlreadyExistsException("El producto con partNumber '" + productDTO.getPartNumber() + "' ya existe.");
+    public Product createProduct(ProductCreationRequest request) {
+        // Verifica si el producto con el mismo número de parte ya existe.
+        if (productRepository.existsByPartNumber(request.getPartNumber())) {
+            throw new ProductAlreadyExistsException(request.getPartNumber());
         }
 
-        // 2. Convertir el DTO a la entidad Product.
-        Product product = productDTO.toEntity();
+        // Crea la entidad Product a partir del DTO.
+        Product product = new Product();
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setPartNumber(request.getPartNumber());
+        product.setCategory(request.getCategory());
+        product.setActive(request.isActive());
 
-        // 3. Persistir la entidad en la base de datos a través del servicio.
-        Product createdProduct = productService.saveProduct(product);
-
-        // 4. Convertir la entidad persistida de nuevo a un DTO para la respuesta.
-        return ProductDTO.fromEntity(createdProduct);
+        // Guarda y retorna el producto.
+        return productRepository.save(product);
     }
 }

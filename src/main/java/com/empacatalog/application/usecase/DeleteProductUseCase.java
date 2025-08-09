@@ -1,26 +1,28 @@
 package com.empacatalog.application.usecase;
 
-import com.empacatalog.domain.service.ProductService;
+import com.empacatalog.domain.model.ProductNotFoundException;
+import com.empacatalog.domain.repository.ProductRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Caso de uso para eliminar un producto existente.
+ */
 @Component
 public class DeleteProductUseCase {
 
-    private final ProductService productService;
+    private final ProductRepository productRepository;
 
-    public DeleteProductUseCase(ProductService productService) {
-        this.productService = productService;
+    public DeleteProductUseCase(ProductRepository productRepository) {
+        this.productRepository = productRepository;
     }
 
-    /**
-     * Lógica de negocio para eliminar un producto.
-     * @param id El ID del producto a eliminar.
-     */
     @Transactional
-    public void execute(Long id) {
-        // En un caso de uso real, podrías agregar validaciones,
-        // como verificar si el producto existe antes de intentar eliminarlo.
-        productService.deleteProduct(id);
+    public void deleteProduct(Long id) {
+        // Verifica si el producto existe antes de intentar eliminarlo
+        if (!productRepository.existsById(id)) {
+            throw new ProductNotFoundException(id);
+        }
+        productRepository.deleteById(id);
     }
 }

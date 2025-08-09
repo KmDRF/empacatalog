@@ -1,48 +1,38 @@
 package com.empacatalog.application.usecase;
 
-import com.empacatalog.application.dto.ProductDTO;
+import com.empacatalog.application.dto.product.ProductUpdateRequest;
 import com.empacatalog.domain.model.Product;
-import com.empacatalog.domain.service.ProductService;
+import com.empacatalog.domain.model.ProductNotFoundException;
+import com.empacatalog.domain.repository.ProductRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
+/**
+ * Caso de uso para actualizar un producto existente.
+ */
 @Component
 public class UpdateProductUseCase {
 
-    private final ProductService productService;
+    private final ProductRepository productRepository;
 
-    public UpdateProductUseCase(ProductService productService) {
-        this.productService = productService;
+    public UpdateProductUseCase(ProductRepository productRepository) {
+        this.productRepository = productRepository;
     }
 
-    /**
-     * Lógica de negocio para actualizar un producto existente.
-     * @param id El ID del producto a actualizar.
-     * @param productDTO El DTO con los datos actualizados.
-     * @return El DTO del producto actualizado, o un Optional vacío si no se encuentra.
-     */
     @Transactional
-    public Optional<ProductDTO> execute(Long id, ProductDTO productDTO) {
-        // 1. Busca el producto existente por su ID.
-        return productService.findProductById(id)
-                .map(existingProduct -> {
-                    // 2. Si se encuentra, actualiza sus campos con los datos del DTO.
-                    existingProduct.setPartNumber(productDTO.getPartNumber());
-                    existingProduct.setName(productDTO.getName());
-                    existingProduct.setDescription(productDTO.getDescription());
-                    existingProduct.setSpecifications(productDTO.getSpecifications());
-                    existingProduct.setCategory(productDTO.getCategory());
-                    existingProduct.setPrice(productDTO.getPrice());
-                    existingProduct.setStockQuantity(productDTO.getStockQuantity());
-                    existingProduct.setImageUrl(productDTO.getImageUrl());
+    public Product updateProduct(Long id, ProductUpdateRequest request) {
+        // Busca el producto por ID, si no existe lanza una excepción
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
 
-                    // 3. Guarda la entidad actualizada en la base de datos.
-                    Product updatedProduct = productService.saveProduct(existingProduct);
+        // Actualiza los campos con la información del DTO de petición
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setCategory(request.getCategory());
+        product.setActive(request.isActive());
 
-                    // 4. Convierte la entidad actualizada a un DTO para el retorno.
-                    return ProductDTO.fromEntity(updatedProduct);
-                });
+        // Guarda y retorna el producto actualizado
+        return productRepository.save(product);
     }
 }
