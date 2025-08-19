@@ -1,5 +1,6 @@
 package com.empacatalog.config;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,6 +13,7 @@ import java.util.Optional;
  * Se integra con Spring Security para obtener el nombre del usuario autenticado.
  */
 @Component
+@Primary // <-- Esta es la anotación que faltaba
 public class SpringSecurityAuditorAware implements AuditorAware<String> {
 
     @Override

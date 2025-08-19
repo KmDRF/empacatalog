@@ -3,16 +3,17 @@ package com.empacatalog.application.dto.product;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
-
+/**
+ * DTO para representar una respuesta de producto.
+ * Utilizado para enviar datos de productos desde el servidor al cliente.
+ */
 @Getter
 @Setter
-public class ProductCreationRequest {
+public class ProductDTO {
+    private Long id;
     private String name;
     private String description;
-    private BigDecimal price;
+    private double price;
     private String partNumber;
     private String category;
-    private boolean active;
-    private Integer stock; // <-- NUEVO CAMPO
 }

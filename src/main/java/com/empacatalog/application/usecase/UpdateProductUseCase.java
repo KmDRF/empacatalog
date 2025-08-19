@@ -7,12 +7,8 @@ import com.empacatalog.domain.repository.ProductRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Caso de uso para actualizar un producto existente.
- */
 @Component
 public class UpdateProductUseCase {
-
     private final ProductRepository productRepository;
 
     public UpdateProductUseCase(ProductRepository productRepository) {
@@ -21,18 +17,16 @@ public class UpdateProductUseCase {
 
     @Transactional
     public Product updateProduct(Long id, ProductUpdateRequest request) {
-        // Busca el producto por ID, si no existe lanza una excepción
-        Product product = productRepository.findById(id)
+        Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
 
-        // Actualiza los campos con la información del DTO de petición
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setPrice(request.getPrice());
-        product.setCategory(request.getCategory());
-        product.setActive(request.isActive());
+        existingProduct.setName(request.getName());
+        existingProduct.setDescription(request.getDescription());
+        existingProduct.setPrice(request.getPrice());
+        existingProduct.setCategory(request.getCategory());
+        existingProduct.setActive(request.isActive());
+        existingProduct.setStock(request.getStock()); // <-- USANDO EL NUEVO CAMPO
 
-        // Guarda y retorna el producto actualizado
-        return productRepository.save(product);
+        return productRepository.save(existingProduct);
     }
 }

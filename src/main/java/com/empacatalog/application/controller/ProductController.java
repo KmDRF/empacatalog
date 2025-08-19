@@ -126,7 +126,7 @@ public class ProductController {
         RevisionType type = (RevisionType) auditData[2];
 
         ProductAuditDTO auditDTO = new ProductAuditDTO();
-        auditDTO.setRevisionId(revision.getId().longValue());
+        auditDTO.setRevisionId((long) revision.getId());
         auditDTO.setRevisionDate(LocalDateTime.ofInstant(revision.getRevisionDate().toInstant(), ZoneId.systemDefault()));
         auditDTO.setRevisionType(type);
         auditDTO.setProduct(mapToProductResponse(product));

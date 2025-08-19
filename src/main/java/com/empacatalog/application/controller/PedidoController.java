@@ -194,7 +194,8 @@ public class PedidoController {
         RevisionType type = (RevisionType) auditData[2];
 
         PedidoAuditDTO auditDTO = new PedidoAuditDTO();
-        auditDTO.setRevisionId(revision.getId().longValue());
+        // Corrección: Usamos (long) para convertir el int a long, en lugar de un método.
+        auditDTO.setRevisionId((long) revision.getId());
         auditDTO.setRevisionDate(LocalDateTime.ofInstant(revision.getRevisionDate().toInstant(), ZoneId.systemDefault()));
         auditDTO.setRevisionType(type);
         auditDTO.setPedido(mapToPedidoResponse(pedido));

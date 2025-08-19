@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
-import org.hibernate.envers.Audited; // <--- Importación de la anotación
+import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@Audited // <--- NUEVA ANOTACIÓN para activar la auditoría
+@Audited
 @EntityListeners(AuditingEntityListener.class)
 public class Product {
 
@@ -33,7 +33,7 @@ public class Product {
     @Column(nullable = false)
     private String name;
 
-    @Lob // Permite campos de texto más largos
+    @Lob
     private String description;
 
     @Column(nullable = false, precision = 10, scale = 2)
@@ -47,6 +47,10 @@ public class Product {
 
     @Column(nullable = false)
     private boolean active;
+
+    // --- NUEVO CAMPO ---
+    @Column(nullable = false)
+    private Integer stock;
 
     // Campos de auditoría automática
     @CreatedDate

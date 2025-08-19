@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
+import org.hibernate.envers.Audited;
 
 /**
  * Representa un ítem dentro de un pedido.
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @NoArgsConstructor
+@Audited // <-- ¡Esta es la línea clave que faltaba!
 public class PedidoItem {
 
     @Id

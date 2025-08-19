@@ -1,7 +1,12 @@
 package com.empacatalog.application.usecase;
 
 import com.empacatalog.application.dto.pedido.PedidoCreationRequest;
-import com.empacatalog.domain.model.*;
+import com.empacatalog.domain.model.InsufficientStockException;
+import com.empacatalog.domain.model.Pedido;
+import com.empacatalog.domain.model.PedidoItem;
+import com.empacatalog.domain.model.Product;
+import com.empacatalog.domain.model.ProductNotFoundException;
+import com.empacatalog.domain.model.User;
 import com.empacatalog.domain.repository.PedidoRepository;
 import com.empacatalog.domain.repository.ProductRepository;
 import org.springframework.stereotype.Component;
@@ -9,63 +14,58 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 /**
- * Caso de uso para la creación de un nuevo pedido.
- * Contiene la lógica para procesar los ítems, calcular el total y guardar el pedido.
+ * Caso de uso para crear un nuevo pedido.
+ * Valida el stock antes de crear el pedido y actualiza el inventario.
  */
 @Component
 public class CreatePedidoUseCase {
 
     private final PedidoRepository pedidoRepository;
-    private final ProductRepository productRepository;
+    private final ProductRepository productRepository; // Inyecta el repositorio de productos
 
     public CreatePedidoUseCase(PedidoRepository pedidoRepository, ProductRepository productRepository) {
         this.pedidoRepository = pedidoRepository;
         this.productRepository = productRepository;
     }
 
-    /**
-     * Procesa y guarda un nuevo pedido para un usuario.
-     *
-     * @param request Datos del pedido recibidos del cliente
-     * @param user    El usuario que realiza el pedido
-     * @return El pedido creado y guardado
-     */
     @Transactional
     public Pedido createPedido(PedidoCreationRequest request, User user) {
-        // Crea una nueva entidad de Pedido
         Pedido nuevoPedido = new Pedido();
         nuevoPedido.setUser(user);
         nuevoPedido.setFechaCreacion(LocalDateTime.now());
         nuevoPedido.setEstado("PENDIENTE");
 
-        BigDecimal totalPedido = BigDecimal.ZERO;
+        // Calcular el total y validar el stock
+        BigDecimal total = BigDecimal.ZERO;
 
-        // Itera sobre los ítems de la petición
-        for (PedidoCreationRequest.PedidoItemRequest itemRequest : request.getItems()) {
-            // Busca el producto por su ID
+        for (PedidoCreationRequest.ItemRequest itemRequest : request.getItems()) {
             Product product = productRepository.findById(itemRequest.getProductId())
                     .orElseThrow(() -> new ProductNotFoundException(itemRequest.getProductId()));
 
-            // Crea un nuevo PedidoItem
-            PedidoItem nuevoItem = new PedidoItem();
-            nuevoItem.setProduct(product);
-            nuevoItem.setCantidad(itemRequest.getCantidad());
-            nuevoItem.setPrecioUnitario(product.getPrice());
+            // --- LÓGICA DE VALIDACIÓN DE INVENTARIO ---
+            if (product.getStock() < itemRequest.getCantidad()) {
+                throw new InsufficientStockException(product.getName(), itemRequest.getCantidad(), product.getStock());
+            }
 
-            // Añade el ítem al pedido
-            nuevoPedido.addItem(nuevoItem);
+            // Actualizar el stock del producto
+            product.setStock(product.getStock() - itemRequest.getCantidad());
+            productRepository.save(product);
 
-            // Suma el costo del ítem al total del pedido
-            BigDecimal subtotal = product.getPrice().multiply(BigDecimal.valueOf(itemRequest.getCantidad()));
-            totalPedido = totalPedido.add(subtotal);
+            // Crear el ítem del pedido
+            PedidoItem pedidoItem = new PedidoItem();
+            pedidoItem.setProduct(product);
+            pedidoItem.setCantidad(itemRequest.getCantidad());
+            pedidoItem.setPrecioUnitario(product.getPrice());
+            pedidoItem.setPedido(nuevoPedido);
+            nuevoPedido.getItems().add(pedidoItem);
+
+            total = total.add(product.getPrice().multiply(BigDecimal.valueOf(itemRequest.getCantidad())));
         }
 
-        // Establece el total del pedido
-        nuevoPedido.setTotal(totalPedido);
-
-        // Guarda el pedido y sus ítems en la base de datos
+        nuevoPedido.setTotal(total);
         return pedidoRepository.save(nuevoPedido);
     }
 }

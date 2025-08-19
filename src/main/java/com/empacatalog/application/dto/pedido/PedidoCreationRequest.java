@@ -2,22 +2,25 @@ package com.empacatalog.application.dto.pedido;
 
 import lombok.Getter;
 import lombok.Setter;
+
 import java.util.List;
 
 /**
  * DTO para la creación de un nuevo pedido.
- * Contiene una lista de los ítems a comprar.
+ * Contiene una lista de los productos a comprar y sus cantidades.
  */
 @Getter
 @Setter
 public class PedidoCreationRequest {
+    private List<ItemRequest> items;
 
-    private List<PedidoItemRequest> items;
-
+    /**
+     * Clase interna (DTO anidado) para representar un ítem dentro de un pedido.
+     */
     @Getter
     @Setter
-    public static class PedidoItemRequest {
+    public static class ItemRequest {
         private Long productId;
-        private Integer cantidad;
+        private int cantidad;
     }
 }
