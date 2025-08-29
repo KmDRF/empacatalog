@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Catálogo Disramfor – Demo</title>
+  <link rel="stylesheet" href="./styles.css"/>
+</head>
+<body>
+  <header class="header">
+  <div class="nav">
+    <div class="brand">
+      <img class="logo" src="./assets/img/logodrf.jpeg" alt="Disramfor"/>
+      <div class="ast-container">
+        <span class="ast">A.S.T.</span>
+        <span class="slogan">ADVANCE SEALING TECHNOLOGY O.E.M. QUALITY</span>
+      </div>
+     </div>
+
+      <div class="nav-buttons">
+      <a href="#">Inicio</a>
+      <a href="#">Catálogo</a>
+      <a href="#">Estado</a>
+      <div class="cart">🛒 <span id="cartCount" class="badge">0</span>
+      </div>
+    </div> 
+</header>
+
+  <section class="toolbar">
+    <select id="marcaSelect" class="select"></select>
+    <select id="tipoSelect" class="select"></select>
+    <div class="input"><input id="searchInput" type="search" placeholder="Buscar por referencia, descripción, motor..."></div>
+    <button id="limpiarBtn" class="btn" title="Limpiar filtros">Limpiar</button>
+  </section>
+
+  <section class="layout">
+    <div>
+      <div id="grid" class="grid"></div>
+    </div>
+    <aside class="aside">
+      <h3>Mi pedido</h3>
+      <div id="cartList"></div>
+      <div class="summary">
+        <span>Total artículos</span>
+        <span id="cartTotalQty">0</span>
+      </div>
+      <div class="summary">
+        <span>Total $</span>
+        <span id="cartTotalPrice">0</span>
+      </div>
+      <button id="exportBtn" class="btn" style="width:100%;margin-top:12px;">Descargar pedido (JSON)</button>
+      <button id="enviarBtn" class="btn" style="width:100%;margin-top:8px;background:#16a34a">Enviar por correo</button>
+    </aside>
+  </section>
+
+  <footer class="footer">
+    Demo UI lista para conectar con API (Spring Boot). Endpoints sugeridos: GET /api/marcas, GET /api/productos?marca=&tipo=&q= , POST /api/pedidos.
+  </footer>
+
+  <script src="./src/data.js"></script>
+  <script src="./src/app.js"></script>
+</body>
+</html>
